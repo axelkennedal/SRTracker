@@ -14,9 +14,9 @@ tankSR = []
 damageSR = []
 supportSR = []
 for entry in allStats:
-    tankSR.insert(0, entry["tankSR"])
-    damageSR.insert(0, entry["damageSR"])
-    supportSR.insert(0, entry["supportSR"])
+    tankSR.append(entry["tankSR"])
+    damageSR.append(entry["damageSR"])
+    supportSR.append(entry["supportSR"])
 
 xValues = range(0, len(allStats))
 
