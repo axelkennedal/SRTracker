@@ -66,15 +66,13 @@ supportLeftOffset = 1220
 starttime=time.time()
 secondsBetweenUpdate = 5
 while True:
+    print("Analyzing screen...")
     img = ImageGrab.grab()
     tankSR = getSR(img, tankLeftOffset)
     damageSR = getSR(img, damageLeftOffset)
     supportSR = getSR(img, supportLeftOffset)
     captureTime = datetime.datetime.now()
-    print("time:", str(captureTime))
-    print("Tank SR:", tankSR)
-    print("Damage SR:", damageSR)
-    print("Support SR:", supportSR)
+
     if (shouldSaveStats(tankSR, damageSR, supportSR)):
         allEntries = db.all()
         if (len(allEntries) > 0):
@@ -86,7 +84,13 @@ while True:
             if (difference(supportSR, lastEntry["supportSR"]) > SR_DIFF_TOLERANCE):
                 supportSR = lastEntry["supportSR"]
         
+        if (not shouldSaveStats): continue
+
         print("saving stats")
+        print("time:", str(captureTime))
+        print("Tank SR:", tankSR)
+        print("Damage SR:", damageSR)
+        print("Support SR:", supportSR)
         db.insert({"captureTime" : str(captureTime), "tankSR" : tankSR, "damageSR" : damageSR, "supportSR" : supportSR})
     else:
         print("not saving stats")
