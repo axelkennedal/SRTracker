@@ -6,7 +6,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files (x86)\Tesseract-OCR\t
 
 # importing OpenCV 
 import cv2
-from PIL import ImageGrab, Image
+from PIL import ImageGrab, Image, ImageEnhance
   
 import datetime
 import time
@@ -19,14 +19,15 @@ print("saving data to", dbLocation)
 db = TinyDB(dbLocation)
 
 # general dimensions
-SRTextWidth = 60
+SRTextWidth = 62
 SRTextHeight = 40
 topOffset = 555
 
 def getSR(img, leftOffsetPx):
     cropSize = (leftOffsetPx, topOffset, leftOffsetPx+SRTextWidth, topOffset+SRTextHeight)
     cropped = img.crop(cropSize)
-    return makeInt(pytesseract.image_to_string(cv2.cvtColor(nm.array(cropped), cv2.COLOR_BGR2GRAY), lang="eng"))
+    processed = ImageEnhance.Contrast(cropped).enhance(2)
+    return makeInt(pytesseract.image_to_string(cv2.cvtColor(nm.array(processed), cv2.COLOR_BGR2GRAY), lang="eng"))
 
 def makeInt(someString):
     try:
@@ -34,23 +35,39 @@ def makeInt(someString):
     except:
         return -1
 
+def difference(numA, numB):
+    if (numA == -1 or numB == -1):
+        return 0
+    else:
+        return abs(numA - numB)
+
+# max change allowed in SR between two games, used to reduce number of incorrect readings
+SR_DIFF_TOLERANCE = 60
 def shouldSaveStats(tankSR, damageSR, supportSR):
     if (tankSR == -1 and damageSR == -1 and supportSR == -1):
         return False
 
-    lastEntry = db.all()[-1]
-    if (tankSR == lastEntry["tankSR"] and damageSR == lastEntry["damageSR"] and supportSR == lastEntry["supportSR"]):
-        return False
+    allEntries = db.all()
+    if (len(allEntries) > 0):
+        lastEntry = allEntries[-1]
+
+        if (tankSR == lastEntry["tankSR"] and damageSR == lastEntry["damageSR"] and supportSR == lastEntry["supportSR"]):
+            return False
     
+        if (difference(tankSR, lastEntry["tankSR"]) > SR_DIFF_TOLERANCE
+            or difference(damageSR, lastEntry["damageSR"]) > SR_DIFF_TOLERANCE
+            or difference(supportSR, lastEntry["supportSR"]) > SR_DIFF_TOLERANCE):
+            return False
+
     return True
 
-img = Image.open(os.getcwd() + "\SRimage.png")
+img = Image.open(os.getcwd() + "\SRimage_hover.png")
 tankLeftOffset = 860 # not right
 damageLeftOffset = 940
 supportLeftOffset = 1220
 
 starttime=time.time()
-secondsBetweenUpdate = 5
+secondsBetweenUpdate = 2
 while True:
     img = ImageGrab.grab()
     tankSR = getSR(img, tankLeftOffset)

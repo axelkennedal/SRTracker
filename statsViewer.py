@@ -50,6 +50,3 @@ for listOfYValues in yValues:
                     ha='center') # horizontal alignment can be left, right or center
 
 plt.show()
-
-
-
