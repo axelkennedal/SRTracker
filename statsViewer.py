@@ -20,8 +20,8 @@ for entry in allStats:
 
 xValues = range(0, len(allStats))
 
-minSR = 500
-maxSR = 4700
+minSR = 2000
+maxSR = 3500
 yTickFrequency = (maxSR - minSR) / 10
 
 axes = plt.gca()

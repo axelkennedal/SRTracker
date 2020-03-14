@@ -49,21 +49,11 @@ def shouldSaveStats(tankSR, damageSR, supportSR):
     if (tankSR == -1 and damageSR == -1 and supportSR == -1):
         return False
 
-    if (tankSR > SR_MAX or tankSR < SR_MIN
-        or damageSR > SR_MAX or damageSR < SR_MIN
-        or supportSR > SR_MAX or supportSR < SR_MIN):
-        return False
-
     allEntries = db.all()
     if (len(allEntries) > 0):
         lastEntry = allEntries[-1]
 
         if (tankSR == lastEntry["tankSR"] and damageSR == lastEntry["damageSR"] and supportSR == lastEntry["supportSR"]):
-            return False
-    
-        if (difference(tankSR, lastEntry["tankSR"]) > SR_DIFF_TOLERANCE
-            or difference(damageSR, lastEntry["damageSR"]) > SR_DIFF_TOLERANCE
-            or difference(supportSR, lastEntry["supportSR"]) > SR_DIFF_TOLERANCE):
             return False
 
     return True
@@ -86,6 +76,16 @@ while True:
     print("Damage SR:", damageSR)
     print("Support SR:", supportSR)
     if (shouldSaveStats(tankSR, damageSR, supportSR)):
+        allEntries = db.all()
+        if (len(allEntries) > 0):
+            lastEntry = allEntries[-1]
+            if ((difference(tankSR, lastEntry["tankSR"]) > SR_DIFF_TOLERANCE)):
+                tankSR = lastEntry["tankSR"]
+            if (difference(damageSR, lastEntry["damageSR"]) > SR_DIFF_TOLERANCE):
+                damageSR = lastEntry["damageSR"]
+            if (difference(supportSR, lastEntry["supportSR"]) > SR_DIFF_TOLERANCE):
+                supportSR = lastEntry["supportSR"]
+        
         print("saving stats")
         db.insert({"captureTime" : str(captureTime), "tankSR" : tankSR, "damageSR" : damageSR, "supportSR" : supportSR})
     else:
