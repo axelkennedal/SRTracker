@@ -43,8 +43,15 @@ def difference(numA, numB):
 
 # max change allowed in SR between two games, used to reduce number of incorrect readings
 SR_DIFF_TOLERANCE = 60
+SR_MIN = 500
+SR_MAX = 4800
 def shouldSaveStats(tankSR, damageSR, supportSR):
     if (tankSR == -1 and damageSR == -1 and supportSR == -1):
+        return False
+
+    if (tankSR > SR_MAX or tankSR < SR_MIN
+        or damageSR > SR_MAX or damageSR < SR_MIN
+        or supportSR > SR_MAX or supportSR < SR_MIN):
         return False
 
     allEntries = db.all()
@@ -67,7 +74,7 @@ damageLeftOffset = 940
 supportLeftOffset = 1220
 
 starttime=time.time()
-secondsBetweenUpdate = 2
+secondsBetweenUpdate = 5
 while True:
     img = ImageGrab.grab()
     tankSR = getSR(img, tankLeftOffset)
