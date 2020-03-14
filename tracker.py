@@ -58,6 +58,44 @@ def shouldSaveStats(tankSR, damageSR, supportSR):
 
     return True
 
+# manual tracking
+while True:
+    print("Update SR for Tank (1), DPS (2), Support (3) or all (4)? Other input = cancel")
+    roleChoice = input()
+    allEntries = db.all()
+
+    newEntry = None
+    if (len(allEntries) > 0):
+        newEntry = allEntries[-1]
+    else:
+        newEntry = {"captureTime" : "", "tankSR" : "", "damageSR" : "", "supportSR" : ""}
+
+    newEntry["captureTime"] = str(datetime.datetime.now())
+    if (roleChoice == "tank"):
+        newTankSR = int(input("Enter new Tank SR: "))
+        newEntry["tankSR"] = newTankSR
+    elif (roleChoice == "dps"):
+        newDamageSR = int(input("Enter new Damage SR: "))
+        newEntry["damageSR"] = newDamageSR
+    elif (roleChoice == "support"):
+        newSupportSR = int(input("Enter new Support SR: "))
+        newEntry["supportSR"] = newSupportSR
+    elif (roleChoice == "all"):
+        newTankSR = int(input("Enter new Tank SR: "))
+        newEntry["tankSR"] = newTankSR
+        newDamageSR = int(input("Enter new Damage SR: "))
+        newEntry["damageSR"] = newDamageSR
+        newSupportSR = int(input("Enter new Support SR: "))
+        newEntry["supportSR"] = newSupportSR
+    else:
+        continue
+
+    print("Saving:", newEntry)
+    db.insert(newEntry)
+
+
+
+# automated tracking
 img = Image.open(os.getcwd() + "\SRimage_hover.png")
 tankLeftOffset = 860 # not right
 damageLeftOffset = 940
@@ -76,13 +114,13 @@ while True:
     if (shouldSaveStats(tankSR, damageSR, supportSR)):
         allEntries = db.all()
         if (len(allEntries) > 0):
-            lastEntry = allEntries[-1]
-            if ((difference(tankSR, lastEntry["tankSR"]) > SR_DIFF_TOLERANCE)):
-                tankSR = lastEntry["tankSR"]
-            if (difference(damageSR, lastEntry["damageSR"]) > SR_DIFF_TOLERANCE):
-                damageSR = lastEntry["damageSR"]
-            if (difference(supportSR, lastEntry["supportSR"]) > SR_DIFF_TOLERANCE):
-                supportSR = lastEntry["supportSR"]
+            newEntry = allEntries[-1]
+            if ((difference(tankSR, newEntry["tankSR"]) > SR_DIFF_TOLERANCE)):
+                tankSR = newEntry["tankSR"]
+            if (difference(damageSR, newEntry["damageSR"]) > SR_DIFF_TOLERANCE):
+                damageSR = newEntry["damageSR"]
+            if (difference(supportSR, newEntry["supportSR"]) > SR_DIFF_TOLERANCE):
+                supportSR = newEntry["supportSR"]
         
         if (not shouldSaveStats): continue
 
