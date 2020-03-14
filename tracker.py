@@ -11,6 +11,13 @@ from PIL import ImageGrab, Image
 import datetime
 import time
 
+import os
+
+from tinydb import TinyDB, Query
+dbLocation = os.getcwd() + "/SRdb.json"
+print("saving data to", dbLocation)
+db = TinyDB(dbLocation)
+
 # general dimensions
 SRTextWidth = 60
 SRTextHeight = 40
@@ -22,10 +29,12 @@ def getSR(img, leftOffsetPx):
     return makeInt(pytesseract.image_to_string(cv2.cvtColor(nm.array(cropped), cv2.COLOR_BGR2GRAY), lang="eng"))
 
 def makeInt(someString):
-    someString = someString.strip()
-    return int(someString) if someString else None
+    try:
+        return int(someString.strip())
+    except:
+        return -1
 
-img = Image.open(r"C:\Users\darkm0de\Pictures\SRimage.png")
+img = Image.open(os.getcwd() + "\SRimage.png")
 tankLeftOffset = 860 # not right
 damageLeftOffset = 940
 supportLeftOffset = 1220
@@ -34,8 +43,13 @@ starttime=time.time()
 secondsBetweenUpdate = 5
 while True:
     img = ImageGrab.grab()
-    print("time:", str(datetime.datetime.now()))
-    print("Tank SR:", getSR(img, tankLeftOffset))
-    print("Damage SR:", getSR(img, damageLeftOffset))
-    print("Support SR:", getSR(img, supportLeftOffset))
+    tankSR = getSR(img, tankLeftOffset)
+    damageSR = getSR(img, damageLeftOffset)
+    supportSR = getSR(img, supportLeftOffset)
+    captureTime = datetime.datetime.now()
+    print("time:", str(captureTime))
+    print("Tank SR:", tankSR)
+    print("Damage SR:", damageSR)
+    print("Support SR:", supportSR)
+    db.insert({"captureTime" : str(captureTime), "tankSR" : tankSR, "damageSR" : damageSR, "supportSR" : supportSR})
     time.sleep(secondsBetweenUpdate - ((time.time() - starttime) % secondsBetweenUpdate))
