@@ -34,6 +34,16 @@ def makeInt(someString):
     except:
         return -1
 
+def shouldSaveStats(tankSR, damageSR, supportSR):
+    if (tankSR == -1 and damageSR == -1 and supportSR == -1):
+        return False
+
+    lastEntry = db.all()[-1]
+    if (tankSR == lastEntry["tankSR"] and damageSR == lastEntry["damageSR"] and supportSR == lastEntry["supportSR"]):
+        return False
+    
+    return True
+
 img = Image.open(os.getcwd() + "\SRimage.png")
 tankLeftOffset = 860 # not right
 damageLeftOffset = 940
@@ -51,5 +61,9 @@ while True:
     print("Tank SR:", tankSR)
     print("Damage SR:", damageSR)
     print("Support SR:", supportSR)
-    db.insert({"captureTime" : str(captureTime), "tankSR" : tankSR, "damageSR" : damageSR, "supportSR" : supportSR})
+    if (shouldSaveStats(tankSR, damageSR, supportSR)):
+        print("saving stats")
+        db.insert({"captureTime" : str(captureTime), "tankSR" : tankSR, "damageSR" : damageSR, "supportSR" : supportSR})
+    else:
+        print("not saving stats")
     time.sleep(secondsBetweenUpdate - ((time.time() - starttime) % secondsBetweenUpdate))
