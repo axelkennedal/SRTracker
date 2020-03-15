@@ -12,6 +12,7 @@ import datetime
 import time
 
 import os
+import sys
 
 from tinydb import TinyDB, Query
 dbLocation = os.getcwd() + "/SRdb.json"
@@ -60,7 +61,7 @@ def shouldSaveStats(tankSR, damageSR, supportSR):
 
 # manual tracking
 while True:
-    print("Update SR for Tank (1), DPS (2), Support (3) or all (4)? Other input = cancel")
+    print("Update SR for Tank, DPS, Support or all? Type quit to quit. Other input = cancel")
     roleChoice = input()
     allEntries = db.all()
 
@@ -87,6 +88,8 @@ while True:
         newEntry["damageSR"] = newDamageSR
         newSupportSR = int(input("Enter new Support SR: "))
         newEntry["supportSR"] = newSupportSR
+    elif (roleChoice == "quit"):
+        sys.exit()
     else:
         continue
 
